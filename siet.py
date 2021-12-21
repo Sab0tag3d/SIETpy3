@@ -54,7 +54,8 @@ def get_time_from_user():
     return tt[0:5]
 
 
-def get_file_for_tftp(mode): # Creating directories, configuration files and execute files
+def get_file_for_tftp(mode):
+    """ Creating directories, configuration files and execute files """
 
     ask_file = input(
         '[INPUT]: Enter full cisco configuration/execute file path, or press "d" for default (be attention here, default file destroy previous configuration): ')
