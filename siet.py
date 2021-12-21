@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SMART INSTALL EXPLOITATION TOOL(SIET)
+""" SMART INSTALL EXPLOITATION TOOL(SIET) """
 
 import argparse
 import socket
@@ -13,7 +13,8 @@ import threading
 import queue
 
 
-def get_argm_from_user():  # Set arguments for running
+def get_argm_from_user():
+    """ Set arguments for running"""
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--ip", dest="IP", help="Set ip-address of client")
     parser.add_argument("-l", "--list_ip", dest="list_IP", help="Set file with list of target IP")
