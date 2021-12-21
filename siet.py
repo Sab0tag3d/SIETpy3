@@ -25,7 +25,7 @@ def get_argm_from_user():
     parser.add_argument("-c", "--change_config", dest="mode", const="change_config", action="store_const",
                         help="Install a new configuration file to the remote device")
     parser.add_argument("-C", "--change_multi", dest="mode", const="change_multi", action="store_const",
-                        help="Install new configuration files to multiple remote devices")    
+                        help="Install new configuration files to multiple remote devices")
     parser.add_argument("-u", "--update_ios", dest="mode", const="update_ios", action="store_const",
                         help="Updating IOS on the remote device")
     parser.add_argument("-e", "--execute", dest="mode", const="execute", action="store_const",
@@ -147,7 +147,7 @@ def conn_with_client(data, ip, mode=0):  # Set connection with remote client
                 while True:
 
                     data = conn_with_host.recv(512)
-                    
+
                     if (len(data) < 1):
                         print(('[INFO]: Smart Install Director feature active on {0}'.format(ip)))
                         print(('[INFO]: {0} is not affected'.format(ip)))
@@ -191,8 +191,8 @@ def conn_with_client(data, ip, mode=0):  # Set connection with remote client
             pass
 
 
-def test_device(current_ip): # Testing for smart install
-
+def test_device(current_ip):
+    """ Testing for smart install"""
     sTcp = '0' * 7 + '1' + '0' * 7 + '1' + '0' * 7 + '4' + '0' * 7 + '8' + '0' * 7 + '1' + '0' * 8
     sTcpb = bytearray.fromhex(sTcp)
     print(('[DEBUG]: Packet for sent: ' + sTcp))
@@ -200,11 +200,13 @@ def test_device(current_ip): # Testing for smart install
     print(('[DEBUG]: Decoded packet to sent: ' + str(sTcpb)))
     conn_with_client(sTcpb, current_ip, mode=1)
 
+
 def test_device_scheduler(hosts_to_scan_queue):
   while not hosts_to_scan_queue.empty():
       host = hosts_to_scan_queue.get()
       test_device(host)
       hosts_to_scan_queue.task_done()
+
 
 def change_tftp(mode, current_ip):  # Send package for changing tftp address
 
@@ -225,7 +227,7 @@ def change_tftp(mode, current_ip):  # Send package for changing tftp address
 
     elif mode == 'change_multi':
         if not os.path.isdir("tftp/conf") and not os.path.exists("tftp/conf"):
-            os.mkdir('tftp/conf', 0o755);
+            os.mkdir('tftp/conf', 0o755)
         config_file = 'conf/' + current_ip + '.conf'
         fConf = 'tftp://' + my_ip + '/' + config_file
         sTime = '00:01'
@@ -293,14 +295,15 @@ def main():
                 for _ in range(args.thread_count):
                     thread = threading.Thread(target=test_device_scheduler, args=(hosts_to_scan_queue,))
                     threads.append(thread)
-                    thread.daemon=True
+                    thread.daemon = True
                     thread.start()
 
             except Exception as err:
                 print('[ERROR]: Taking down all testing threads!')
                 print(err)
             finally:
-                for thread in threads: thread.join()
+                for thread in threads:
+                    thread.join()
 
         else:
             current_ip = args.IP
@@ -332,7 +335,8 @@ def main():
                     with open(args.list_IP, 'r') as list:
                         for line in list:
                             ip = line.strip()
-                            if ip: q.put(ip)
+                            if ip:
+                              q.put(ip)
 
                     for i in range(args.thread_count):
                         t = threading.Thread(target=worker)
@@ -366,4 +370,3 @@ def main():
 
 
 main()
-
