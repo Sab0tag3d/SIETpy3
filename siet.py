@@ -106,8 +106,8 @@ def get_file_for_tftp(mode):
   return nfile
 
 
-def get_ios_for_tftp():  # Creating nessesary files for IOS update
-
+def get_ios_for_tftp():
+  """ Creating nessesary files for IOS update """
   try:
     ios_image = input('[INPUT]: Enter canonical path for the cisco IOS image(tar) file: ')
     shutil.copy2(str(ios_image), 'tftp/')
@@ -124,8 +124,8 @@ def get_ios_for_tftp():  # Creating nessesary files for IOS update
     exit()
 
 
-def conn_with_client(data, ip, mode=0):  # Set connection with remote client
-
+def conn_with_client(data, ip, mode=0):
+  """ Set connection with remote client"""
   args = get_argm_from_user()
 
   try:
@@ -202,16 +202,16 @@ def test_device(current_ip):
 
 
 def test_device_scheduler(hosts_to_scan_queue):
+ """ test scheduler """
  while not hosts_to_scan_queue.empty():
    host = hosts_to_scan_queue.get()
    test_device(host)
    hosts_to_scan_queue.task_done()
 
 
-def change_tftp(mode, current_ip):  # Send package for changing tftp address
-
+def change_tftp(mode, current_ip):  
+  """ Send package for changing tftp address """
   my_ip = conn_with_client(None, current_ip)
-
   if not my_ip:
     my_ip = socket.gethostbyname(socket.gethostname())
 
