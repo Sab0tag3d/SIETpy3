@@ -40,7 +40,8 @@ def get_argm_from_user():
     return args
 
 
-def get_time_from_user():  # Time setting before device reload and apply your configuration file
+def get_time_from_user():
+    """ Time setting before device reload and apply your configuration file """
 
     while True:
         tt = input('[INPUT]: Please enter timeout before reload [HH:MM]:')
