@@ -310,7 +310,7 @@ def main():
       test_device(current_ip)
 
   else:
-    tftp = subprocess.Popen(["python2.7", "sTFTP.py"])
+    tftp = subprocess.Popen(["python3", "sTFTP.py"])
 
     if args.mode != 'change_multi' and args.mode != 'get_config':
       current_ip = args.IP
