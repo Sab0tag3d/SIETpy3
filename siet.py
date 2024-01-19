@@ -279,7 +279,9 @@ def change_tftp(mode, current_ip):
   # print('[DEBUG]: Packet for sent: ' + sTcp)
   print(('[INFO]: Sending TCP packet to %s ' % current_ip))
   # print('[DEBUG]: Decoded packet to sent: ' + sTcp.decode('hex'))
-  conn_with_client(sTcp.decode('hex'), current_ip)
+  # conn_with_client(sTcp.decode('hex'), current_ip) # per issue #1 https://github.com/Sab0tag3d/SIETpy3/issues/1
+  conn_with_client(bytes.fromhex(sTcp), current_ip)
+  
 
 
 def main():
