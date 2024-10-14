@@ -1,4 +1,5 @@
 import sys, os, socket
+import binascii
 
 TFTP_FILES_PATH = 'tftp'  # path to files for transfering
 TFTP_SERVER_PORT = 69
@@ -42,29 +43,32 @@ def TftpServer(sBindIp, SocketTimeout):
             return
         print('[INFO]: connect from ', raddress, rport)
         sReq = ''
-        tReq = ord(buff[1])
+        tReq = buff[1]
         if tReq == TFTP_GET_BYTE:
             sReq = 'get'
             fMode = 'r'
-        if tReq == TFTP_PUT_BYTE:
+        elif tReq == TFTP_PUT_BYTE:
             sReq = 'put'
             fMode = 'w'
-        if len(sReq) == 0:
+        else:
             print('[ERR]: illegal TFTP request', tReq)
-            sUdp = '\x00\x05\x00\x01Illegal TFTP request\x00'
+            sUdp = b'\x00\x05\x00\x01Illegal TFTP request\x00'
             ConnUDP.sendto(sUdp, (raddress, rport))
             continue
-        ss = buff[2:].split('\0')
+
+        ss = buff[2:].decode('utf-8').split('\0')
         nFile = ss[0]
         sType = ss[1]
         print('[INFO]:[' + raddress + '] ' + sReq + 'ing file', nFile, sType)
-        if (sType == 'octet'):
-            fMode += 'b'
+
+        if sType == 'octet':
+            fMode += 'b' 
+
         try:
-            f = open(TFTP_FILES_PATH + '/' + nFile, fMode)
+            f = open(os.path.join(TFTP_FILES_PATH, nFile), fMode)
         except IOError:
-            print('[INFO]:[' + raddress + ']:[' + sReq + '] error open file: ' + TFTP_FILES_PATH + '/' + nFile)
-            sUdp = '\x00\x05\x00\x01Error open file\x00'
+            print('[INFO]:[' + raddress + ']:[' + sReq + '] error open file: ' + os.path.join(TFTP_FILES_PATH, nFile))
+            sUdp = b'\x00\x05\x00\x01Error open file\x00'
             ConnUDP.sendto(sUdp, (raddress, rport))
             continue
         try:
@@ -74,7 +78,7 @@ def TftpServer(sBindIp, SocketTimeout):
             ConnDATA.bind(('', dPort))
         except socket.error:
             print('[ERR]:[' + raddress + ']:[' + sReq + '] error binding dataport', dPort)
-            sUdp = '\x00\x05\x00\x01Internal error\x00'
+            sUdp = b'\x00\x05\x00\x01Internal error\x00'
             ConnUDP.sendto(sUdp, (raddress, rport))
             f.close()
             continue
@@ -85,21 +89,21 @@ def TftpServer(sBindIp, SocketTimeout):
         child_pid = os.fork()
         if child_pid < 0:
             print('[ERR]:[' + raddress + ']:[' + sReq + '] error forking new process')
-            sUdp = '\x00\x05\x00\x01Internal error\x00'
+            sUdp = b'\x00\x05\x00\x01Internal error\x00'
             ConnUDP.sendto(sUdp, (raddress, rport))
             f.close()
             ConnDATA.close()
             continue
         if child_pid == 0:
             if sReq == 'put':
-                sUdp = '0004' + ('%04x' % 0)
-                ConnDATA.sendto(sUdp.decode('hex'), (raddress, rport))
+                sUdp = binascii.unhexlify('0004' + ('%04x' % 0))
+                ConnDATA.sendto(sUdp, (raddress, rport))
                 fSize = 0
                 buffer, (raddress, rport) = ConnDATA.recvfrom(MAX_BLKSIZE)
                 while buffer:
                     fSize += len(buffer[4:])
                     f.write(buffer[4:])
-                    sUdp = '\x00\x04' + buffer[2:4]
+                    sUdp = b'\x00\x04' + buffer[2:4]
                     ConnDATA.sendto(sUdp, (raddress, rport))
                     if len(buffer[4:]) < DEF_BLKSIZE:
                         break
@@ -122,7 +126,7 @@ def TftpServer(sBindIp, SocketTimeout):
                     except socket.error:
                         print('[ERR]:[' + raddress + ']:[' + sReq + '] error upload file ' + TFTP_FILES_PATH + '/' + nFile)
                         break
-                    nBlock = int(buffer[2:4].encode('hex'), 16)
+                    nBlock = binascii.hexlify(buffer[2:4]).decode('utf-8')
                     if ord(buffer[1]) != 4 or nBlock != j:
                         print('[ERR]:[' + raddress + ']:[' + sReq + '] answer packet not valid:', ord(
                             buffer[1]), nBlock, j)

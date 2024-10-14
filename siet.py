@@ -11,7 +11,7 @@ import subprocess
 import time
 import threading
 import queue
-
+import binascii
 
 def get_argm_from_user():
   """ Set arguments for running"""
@@ -247,9 +247,9 @@ def change_tftp(mode, current_ip):
 
     sTcp = '0' * 7 + '1' + '0' * 7 + '1' + '0' * 7 + '800000' + '40800010014' + '0' * 7 + '10' + '0' * 7 + 'fc994737866' + '0' * 7 + '0303f4'
 
-    sTcp = sTcp + c1.encode('hex') + '00' * (336 - len(c1))
-    sTcp = sTcp + c2.encode('hex') + '00' * (336 - len(c2))
-    sTcp = sTcp + c3.encode('hex') + '00' * (336 - len(c3))
+    sTcp = sTcp + binascii.hexlify(c1.encode()).decode() + '00' * (336 - len(c1))
+    sTcp = sTcp + binascii.hexlify(c2.encode()).decode() + '00' * (336 - len(c2))
+    sTcp = sTcp + binascii.hexlify(c3.encode()).decode() + '00' * (336 - len(c3))
 
   elif mode == 'update_ios':
     get_ios_for_tftp()
